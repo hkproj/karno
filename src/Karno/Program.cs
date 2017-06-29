@@ -1,4 +1,4 @@
-﻿using Copto;
+﻿// using Copto;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -49,23 +49,23 @@ namespace Karno
 
         public static void Main(string[] args)
         {
-            var opts = Options.Parse(args);
+            // var opts = Options.Parse(args);
 
-            int number_of_variables = 50;
-            int number_of_tests = 10;
+            int number_of_variables = 25;
+            int number_of_tests = 100;
             int seed = 42;
             bool test_minimization_result = true;
 
-            opts.Apply(new RuleSet()
+            /* opts.Apply(new RuleSet()
             {
                 { "vars", (v) => number_of_variables = v ?? 4 },
                 { "tests", (t) => number_of_tests = t ?? 1000 },
                 { "reseed", () => seed = (int)DateTime.Now.Ticks },
                 { "test-minimization", (v) => test_minimization_result = v ?? true }
-            });
+            }); */
 
-            var benchmark = new KMapBenchmark(42, number_of_variables, number_of_tests);
-            benchmark.RunAsync().Wait();
+            var benchmark = new KMapBenchmark(seed, number_of_variables, number_of_tests);
+            benchmark.RunAsync(true, test_minimization_result).Wait();
             Console.ReadLine();
         }
     }
