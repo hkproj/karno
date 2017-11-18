@@ -52,7 +52,7 @@ namespace Karno
             var opts = Options.Parse(args);
 
             int number_of_variables = 4;
-            int number_of_tests = 100;
+            int number_of_tests = 10000;
             int seed = 42;
             bool test_minimization_result = true;
 
