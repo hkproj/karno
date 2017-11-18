@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Karno
 {
@@ -33,7 +34,7 @@ namespace Karno
 
         public HashSet<long> DCSet { get; set; }
 
-        public HashSet<Coverage> Minimize()
+        public async Task<HashSet<Coverage>> Minimize()
         {
             var groups = new Coverage();
 
@@ -66,7 +67,7 @@ namespace Karno
             // (groups that cover ones already covered by other ESSENTIAL groups)
             groups = RemoveRedundant(groups);
 
-            return GetCovers(groups);
+            return await GetCoversAsync(groups);
         }
 
         Coverage MergeGroups(Coverage groups)
@@ -123,16 +124,16 @@ namespace Karno
             return true;
         }
 
-        HashSet<Coverage> GetCovers(Coverage groups)
+        async Task<HashSet<Coverage>> GetCoversAsync(Coverage groups)
         {
             // Navigate the graph of (possible) solutions, each including or excluding one particular group
             // Each if each solution is valid (i.e. it covers all 'ones')
             var essential = new Coverage(groups.Where(g => g.IsEssential.Value));
             var available_groups_list = groups.Except(essential).OrderBy(g => g.Count);
-            return NavigateCovers(essential, available_groups_list);
+            return await NavigateCoversAsync(essential, available_groups_list);
         }
 
-        HashSet<Coverage> NavigateCovers(Coverage selected_groups, IEnumerable<Group> available_groups_list)
+        async Task<HashSet<Coverage>> NavigateCoversAsync(Coverage selected_groups, IEnumerable<Group> available_groups_list)
         {
             if (!available_groups_list.Any())
             {
@@ -157,10 +158,10 @@ namespace Karno
                 result.Add(coverage_excluding_next);
 
             var next_available_groups_list = available_groups_list.Skip(1);
-            var covers_including_next = NavigateCovers(groups_including_next, next_available_groups_list);
-            var covers_excluding_next = NavigateCovers(groups_excluding_next, next_available_groups_list);
+            var covers_including_next = NavigateCoversAsync(groups_including_next, next_available_groups_list);
+            var covers_excluding_next = NavigateCoversAsync(groups_excluding_next, next_available_groups_list);
 
-            return new HashSet<Coverage>(result.Union(covers_including_next).Union(covers_excluding_next));
+            return new HashSet<Coverage>(result.Union(await covers_including_next).Union(await covers_excluding_next));
         }
 
         bool IsValidCoverage(Coverage selected_groups, out Coverage coverage)
