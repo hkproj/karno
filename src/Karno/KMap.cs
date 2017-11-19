@@ -130,38 +130,58 @@ namespace Karno
             // Each if each solution is valid (i.e. it covers all 'ones')
             var essential = new Coverage(groups.Where(g => g.IsEssential.Value));
             var available_groups_list = groups.Except(essential).OrderBy(g => g.Count);
-            return await NavigateCoversAsync(essential, available_groups_list);
+            return await NavigateCoversAsync(essential, available_groups_list, true);
         }
 
-        async Task<HashSet<Coverage>> NavigateCoversAsync(Coverage selected_groups, IEnumerable<Group> available_groups_list)
+        async Task<HashSet<Coverage>> NavigateCoversAsync(Coverage selected_groups, IEnumerable<Group> available_groups_list, bool check_cover)
         {
-            if (!available_groups_list.Any())
+            /*
+             
+                The solution tree starts with just the base solution, the one containing only the essential groups
+                we expand the base solution by creating two branches: 
+                    - the left, adding the first available group from the list
+                    - the right, skipping the first available group from the list
+
+                Since the right branch has exactly the same groups as the parent, we don't need to check that solution.
+                We only need to expand the right branch because we need its left-side solutions, so we have to do it until the last level of the tree
+
+                                                ---------------------------------
+                                                |BASE_SOLUTION (ROOT NODE)      |
+                                                ---------------------------------
+                                               /                                  \
+                                              /                                    \
+                                --------------                                      --------------------------
+                                |BASE + 1st. |                                      |BASE_SOLUTION (skip 1st)|
+                                --------------                                      --------------------------
+                               /              \                                    /                           \
+                              /                \                                  /                             \
+                ----------------                ---------------     --------------                               --------------------------
+                |BASE +1st +2nd|                |BASE +1st.   |     |BASE +2nd  |                                |BASE_SOLUTION (skip 2nd)
+                ----------------                |(skip 2nd)   |     --------------                               --------------------------
+                                                ---------------
+             */
+
+            if (check_cover)
             {
-                // No other covers possible, return a coverage including only the selected so far
-                Coverage coverage;
-                if (IsValidCoverage(selected_groups, out coverage))
+                if (IsValidCoverage(selected_groups, out Coverage coverage))
                     return new HashSet<Coverage>() { coverage };
-                else
-                    return new HashSet<Coverage>();
             }
 
-            var next_available = available_groups_list.First();
-            var result = new HashSet<Coverage>();
+            // base solution for recursion
+            if (!available_groups_list.Any())
+                return new HashSet<Coverage>();
 
-            // Create two covers: the first contains the selected group, the other doesn't.
-            var groups_including_next = new Coverage(selected_groups) { next_available };
-            if (IsValidCoverage(groups_including_next, out Coverage coverage_including_next))
-                result.Add(coverage_including_next);
-
-            var groups_excluding_next = new Coverage(selected_groups);
-            if (IsValidCoverage(groups_excluding_next, out Coverage coverage_excluding_next))
-                result.Add(coverage_excluding_next);
+            var left_branch_groups = new Coverage(selected_groups) { available_groups_list.First() };
+            var right_branch_groups = new Coverage(selected_groups);
 
             var next_available_groups_list = available_groups_list.Skip(1);
-            var covers_including_next = NavigateCoversAsync(groups_including_next, next_available_groups_list);
-            var covers_excluding_next = NavigateCoversAsync(groups_excluding_next, next_available_groups_list);
+            var left_branch_task = NavigateCoversAsync(left_branch_groups, next_available_groups_list, true);
+            var right_branch_task = NavigateCoversAsync(right_branch_groups, next_available_groups_list, false);
 
-            return new HashSet<Coverage>(result.Union(await covers_including_next).Union(await covers_excluding_next));
+            // Wait for both branches to complete.
+            Task.WaitAll(left_branch_task, right_branch_task);
+
+            return new HashSet<Coverage>((await left_branch_task).Union(await right_branch_task));
         }
 
         bool IsValidCoverage(Coverage selected_groups, out Coverage coverage)
