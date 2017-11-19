@@ -57,13 +57,13 @@ namespace Karno
 
         public async Task<(bool, long?, Coverage)> TestAsync(bool only_min = true)
         {
-            var covers = await Map.Minimize();
+            var coverages = await Map.Minimize();
 
-            if (covers.Count == 0)
-                throw new InvalidOperationException("No valid covers in minimization");
+            if (coverages.Count == 0)
+                throw new InvalidOperationException("No valid coverages in minimization");
 
-            var min_cost = covers.Min(c => c.Cost);
-            foreach(var coverage in covers)
+            var min_cost = coverages.Min(c => c.Cost);
+            foreach(var coverage in coverages)
             {
                 if (only_min && coverage.Cost > min_cost)
                     continue;

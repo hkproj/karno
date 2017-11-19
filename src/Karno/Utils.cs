@@ -86,13 +86,13 @@ namespace Karno
             Console.WriteLine("SOP: " + coverage.ToSOPExpression());
         }
 
-        public static async Task PrintCoversAsync(this KMap map, bool only_min = true)
+        public static async Task PrintCoveragesAsync(this KMap map, bool only_min = true)
         {
-            var covers = await map.Minimize();
-            if (covers.Count == 0)
+            var coverages = await map.Minimize();
+            if (coverages.Count == 0)
                 return;
-            var min_cost = covers.Min(c => c.Cost.Value);
-            foreach(var coverage in covers)
+            var min_cost = coverages.Min(c => c.Cost.Value);
+            foreach(var coverage in coverages)
             {
                 if (only_min && coverage.Cost.Value > min_cost)
                     continue;

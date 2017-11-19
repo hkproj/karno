@@ -63,11 +63,10 @@ namespace Karno
             // Detect essential groups
             groups = MarkEssential(groups);
 
-            // Remove completely redundant groups
-            // (groups that cover ones already covered by other ESSENTIAL groups)
+            // Remove completely redundant groups, that is, groups that cover 'ones' (of the function) already covered by other ESSENTIAL groups
             groups = RemoveRedundant(groups);
 
-            return await GetCoversAsync(groups);
+            return await GetCoveragesAsync(groups);
         }
 
         Coverage MergeGroups(Coverage groups)
@@ -124,16 +123,16 @@ namespace Karno
             return true;
         }
 
-        async Task<HashSet<Coverage>> GetCoversAsync(Coverage groups)
+        async Task<HashSet<Coverage>> GetCoveragesAsync(Coverage groups)
         {
             // Navigate the graph of (possible) solutions, each including or excluding one particular group
             // Each if each solution is valid (i.e. it covers all 'ones')
             var essential = new Coverage(groups.Where(g => g.IsEssential.Value));
             var available_groups_list = groups.Except(essential).OrderBy(g => g.Count);
-            return await NavigateCoversAsync(essential, available_groups_list, true);
+            return await NavigateCoveragesAsync(essential, available_groups_list, true);
         }
 
-        async Task<HashSet<Coverage>> NavigateCoversAsync(Coverage selected_groups, IEnumerable<Group> available_groups_list, bool check_cover)
+        async Task<HashSet<Coverage>> NavigateCoveragesAsync(Coverage selected_groups, IEnumerable<Group> available_groups_list, bool check_cover)
         {
             /*
              
@@ -175,8 +174,8 @@ namespace Karno
             var right_branch_groups = new Coverage(selected_groups);
 
             var next_available_groups_list = available_groups_list.Skip(1);
-            var left_branch_task = NavigateCoversAsync(left_branch_groups, next_available_groups_list, true);
-            var right_branch_task = NavigateCoversAsync(right_branch_groups, next_available_groups_list, false);
+            var left_branch_task = NavigateCoveragesAsync(left_branch_groups, next_available_groups_list, true);
+            var right_branch_task = NavigateCoveragesAsync(right_branch_groups, next_available_groups_list, false);
 
             // Wait for both branches to complete.
             Task.WaitAll(left_branch_task, right_branch_task);
