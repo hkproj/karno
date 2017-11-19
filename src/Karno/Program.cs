@@ -58,14 +58,15 @@ namespace Karno
 
             opts.Apply(new RuleSet()
             {
-                { "vars", (v) => number_of_variables = v ?? 4 },
-                { "tests", (t) => number_of_tests = t ?? 1000 },
+                { "vars", (v) => number_of_variables = v.Value },
+                { "tests", (t) => number_of_tests = t.Value },
                 { "reseed", () => seed = (int)DateTime.Now.Ticks },
-                { "test-minimization", (v) => test_minimization_result = v ?? true }
+                { "test-minimization", (v) => test_minimization_result = v.Value }
             });
 
             var benchmark = new KMapBenchmark(seed, number_of_variables, number_of_tests);
             benchmark.RunAsync(true, test_minimization_result).Wait();
+            Console.ReadLine();
         }
     }
 }
