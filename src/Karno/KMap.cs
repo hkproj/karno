@@ -129,10 +129,10 @@ namespace Karno
             // Each if each solution is valid (i.e. it covers all 'ones')
             var essential = new Coverage(groups.Where(g => g.IsEssential.Value));
             var available_groups_list = groups.Except(essential).OrderBy(g => g.Count);
-            return await NavigateCoveragesAsync(essential, available_groups_list, true);
+            return new HashSet<Coverage>(await NavigateCoveragesAsync(essential, available_groups_list, true));
         }
 
-        async Task<HashSet<Coverage>> NavigateCoveragesAsync(Coverage selected_groups, IEnumerable<Group> available_groups_list, bool check_cover)
+        async Task<IEnumerable<Coverage>> NavigateCoveragesAsync(Coverage selected_groups, IEnumerable<Group> available_groups_list, bool check_cover)
         {
             /*
              
@@ -160,15 +160,16 @@ namespace Karno
                                                 ---------------
              */
 
-            if (check_cover)
+            var solutions = new List<Coverage>();
+
+            if (check_cover && IsValidCoverage(selected_groups, out Coverage coverage))
             {
-                if (IsValidCoverage(selected_groups, out Coverage coverage))
-                    return new HashSet<Coverage>() { coverage };
+                solutions.Add(coverage);
             }
 
             // base solution for recursion
             if (!available_groups_list.Any())
-                return new HashSet<Coverage>();
+                return solutions;
 
             var left_branch_groups = new Coverage(selected_groups) { available_groups_list.First() };
             var right_branch_groups = new Coverage(selected_groups);
@@ -180,7 +181,7 @@ namespace Karno
             // Wait for both branches to complete.
             Task.WaitAll(left_branch_task, right_branch_task);
 
-            return new HashSet<Coverage>((await left_branch_task).Union(await right_branch_task));
+            return solutions.Union(await left_branch_task).Union(await right_branch_task);
         }
 
         bool IsValidCoverage(Coverage selected_groups, out Coverage coverage)
