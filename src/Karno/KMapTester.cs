@@ -55,9 +55,9 @@ namespace Karno
             return false;
         }
 
-        public async Task<(bool, long?, Coverage)> TestAsync(bool only_min = true)
+        public (bool, long?, Coverage) Test(bool only_min = true)
         {
-            var coverages = await Map.Minimize();
+            var coverages = Map.Minimize();
 
             if (coverages.Count == 0)
                 throw new InvalidOperationException("No valid coverages in minimization");

@@ -49,7 +49,7 @@ namespace Karno
                 return new KMap(NumberOfVariables, on_set, dc_set);
         }
 
-        public async Task RunAsync(bool print_results = true, bool test_minimization_result = true)
+        public void Run(bool print_results = true, bool test_minimization_result = true)
         {
             double total_time = 0;
             if (print_results)
@@ -75,10 +75,10 @@ namespace Karno
                 if (test_minimization_result)
                 {
                     var tester = new KMapTester(map);
-                    (test_passed, _, _) = await tester.TestAsync(false);
+                    (test_passed, _, _) = tester.Test(false);
                 }
                 else
-                    await map.Minimize();
+                    map.Minimize();
 
                 var end_time = DateTime.UtcNow;
                 var duration = (end_time - start_time).TotalSeconds;

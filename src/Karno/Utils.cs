@@ -86,9 +86,9 @@ namespace Karno
             Console.WriteLine("SOP: " + coverage.ToSOPExpression());
         }
 
-        public static async Task PrintCoveragesAsync(this KMap map, bool only_min = true)
+        public static void PrintCoverages(this KMap map, bool only_min = true)
         {
-            var coverages = await map.Minimize();
+            var coverages = map.Minimize();
             if (coverages.Count == 0)
                 return;
             var min_cost = coverages.Min(c => c.Cost.Value);
@@ -100,10 +100,10 @@ namespace Karno
             }
         }
 
-        public static async Task PrintTestResultsAsync(this KMap map, bool only_min = false)
+        public static void PrintTestResults(this KMap map, bool only_min = false)
         {
             var tester = new KMapTester(map);
-            (var result, var n, var coverage) = await tester.TestAsync(only_min);
+            (var result, var n, var coverage) = tester.Test(only_min);
             if (result)
                 Console.WriteLine("TEST: OK");
             else
