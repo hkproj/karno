@@ -14,7 +14,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Copto" Version="1.0.0" />
+    <PackageReference Include="Copto" Version="1.0.11" />
   </ItemGroup>
 
 </Project>
