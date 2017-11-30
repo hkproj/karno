@@ -31,6 +31,8 @@ namespace Karno
 
         public override int GetHashCode()
         {
+            // This is the reason we use a SortedList for the "Group" object, because we need to create as many buckets
+            // as there are distinct first elements of each groups
             if (Count > 0)
                 return this.First().GetHashCode();
             else
