@@ -130,7 +130,7 @@ namespace Karno
             return new HashSet<Coverage>(NavigateCoverages(essential, available_groups_list, true));
         }
 
-        IEnumerable<Coverage> NavigateCoverages(Coverage selected_groups, IEnumerable<Group> available_groups_list, bool check_cover)
+        IEnumerable<Coverage> NavigateCoverages(Coverage selected_groups, IEnumerable<Group> available_groups_list, bool check_coverage)
         {
             /*
              
@@ -160,7 +160,7 @@ namespace Karno
 
             var solutions = new List<Coverage>();
 
-            if (check_cover && IsValidCoverage(selected_groups, out Coverage coverage))
+            if (check_coverage && IsValidCoverage(selected_groups, out Coverage coverage))
             {
                 solutions.Add(coverage);
             }
