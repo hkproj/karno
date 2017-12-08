@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Karno": {
+      "commandName": "Project",
+      "commandLineArgs": "-fast-test -benchmark"
+    }
+  }
+}
