@@ -1,1 +1,1 @@
-Type a meaninful description ;-)
+Karnaugh Map Solver (any number of variables).
