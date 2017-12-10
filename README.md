@@ -1,4 +1,4 @@
-# Introduction
+# Karno
 Karno is a Karnaugh map solver that works with any number of variables. It includes an algorithm to minimize a k-map and one to test the output SOP expression against all possible inputs for the function.
 
 # Usage
