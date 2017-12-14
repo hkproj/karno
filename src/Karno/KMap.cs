@@ -44,18 +44,16 @@ namespace Karno
             foreach (var dc in dc_set_binary)
                 groups.Add(new Group() { dc });
 
-            while (true)
+            Coverage previous_groups = null;
+            // Continue merging and optimizing until it's possible
+            while (previous_groups == null || !groups.Equals(previous_groups))
             {
-                // Merge groups of cardinality 'n' to create groups of double cardinality
-                var merged_groups = MergeGroups(groups);
-                // Clean up groups that are strict subsets of other groups
-                merged_groups = RemoveSubsets(merged_groups);
+                previous_groups = groups; // Save the state before merging and optimizing
 
-                // If nothing was merged and nothing removed, then we can't optimize anymore
-                if (merged_groups.Equals(groups))
-                    break;
-                else
-                    groups = merged_groups;
+                // Merge groups of cardinality 'n' to create groups of double cardinality
+                groups = MergeGroups(groups);
+                // Clean up groups that are strict subsets of other groups
+                groups = RemoveSubsets(groups);
             }
 
             // Detect essential groups
